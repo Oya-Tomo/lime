@@ -10,6 +10,10 @@
 This application prodives a simple WebRTC video capture.
 You can select the camera of video source.
 
+## supported platform
+
+- Linux (v4l2-utils required)
+
 ## background
 
 This is developed for Hairo Robocon 2024.
