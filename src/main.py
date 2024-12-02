@@ -31,7 +31,7 @@ tracks = Tracks()
 
 @server.get("/")
 async def get_index():
-    index_html = open("src/pages/index/index.html").read()
+    index_html = open("src/page/index.html").read()
     return HTMLResponse(content=index_html, status_code=200)
 
 
@@ -39,11 +39,11 @@ async def get_index():
 async def get_static(file_path: str):
     files = {
         "index.css": {
-            "path": "src/pages/index/index.css",
+            "path": "src/page/index.css",
             "content_type": "text/css",
         },
         "index.js": {
-            "path": "src/pages/index/index.js",
+            "path": "src/page/index.js",
             "content_type": "application/javascript",
         },
     }

@@ -21,7 +21,7 @@ class DeviceFile(BaseModel):
 
 class Device(BaseModel):
     name: str
-    device_files: list[DeviceFile]
+    files: list[DeviceFile]
 
 
 def v4l2_ctl_format_ext(device) -> list[Format] | None:
@@ -68,16 +68,16 @@ def v4l2_ctl_list_devices() -> list[Device] | None:
         device_name_match = re.findall(r"(.*\(.*\)):", line)
         device_file_match = re.search(r"/dev/video\d+", line)
         if len(device_name_match) > 0:
-            devices.append(Device(name=device_name_match[0], device_files=[]))
+            devices.append(Device(name=device_name_match[0], files=[]))
         elif device_file_match:
-            devices[-1].device_files.append(
+            devices[-1].files.append(
                 DeviceFile(path=device_file_match.group(), formats=[])
             )
 
     for di in range(len(devices)):
-        for dfi in range(len(devices[di].device_files)):
-            devices[di].device_files[dfi].formats = v4l2_ctl_format_ext(
-                devices[di].device_files[dfi].path
+        for dfi in range(len(devices[di].files)):
+            devices[di].files[dfi].formats = v4l2_ctl_format_ext(
+                devices[di].files[dfi].path
             )
 
     return devices
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     devices = v4l2_ctl_list_devices()
     for device in devices:
         print(device.name)
-        for device_file in device.device_files:
+        for device_file in device.files:
             print(f"  {device_file.path}")
             for format in device_file.formats:
                 print(f"    {format.name}")
