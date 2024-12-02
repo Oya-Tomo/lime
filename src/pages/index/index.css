@@ -1,0 +1,25 @@
+html body {
+  margin: 0;
+  padding: 0;
+  font-family: "Roboto", sans-serif;
+  background-color: #f0f0f0;
+}
+
+header {
+  background-color: #2aac0a;
+  color: white;
+  padding: 10px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+div.icon {
+  width: 96px;
+  height: 96px;
+}
+
+h1 {
+  color: white;
+}
