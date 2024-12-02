@@ -1,25 +1,27 @@
-from dataclasses import dataclass
 import subprocess
 import re
 import pprint
+from pydantic import BaseModel
 
 
-@dataclass
-class Device:
-    name: str
-    device_files: list[str]
-
-
-@dataclass
-class Quality:
+class Quality(BaseModel):
     size: str
     fps: list[float]
 
 
-@dataclass
-class Format:
-    format: str
+class Format(BaseModel):
+    name: str
     quality: list[Quality]
+
+
+class DeviceFile(BaseModel):
+    path: str
+    formats: list[Format]
+
+
+class Device(BaseModel):
+    name: str
+    device_files: list[DeviceFile]
 
 
 def v4l2_ctl_format_ext(device) -> list[Format] | None:
@@ -45,9 +47,9 @@ def v4l2_ctl_format_ext(device) -> list[Format] | None:
             r"^\s*Interval: Discrete \d+\.\d+s \((\d+.\d+) fps\)", line
         )
         if len(format_match) > 0:
-            formats.append(Format(format_match[0], []))
+            formats.append(Format(name=format_match[0], quality=[]))
         if len(size_match) > 0:
-            formats[-1].quality.append(Quality(size_match[0], []))
+            formats[-1].quality.append(Quality(size=size_match[0], fps=[]))
         if len(fps_match) > 0:
             formats[-1].quality[-1].fps.append(float(fps_match[0]))
     return formats
@@ -66,12 +68,30 @@ def v4l2_ctl_list_devices() -> list[Device] | None:
         device_name_match = re.findall(r"(.*\(.*\)):", line)
         device_file_match = re.search(r"/dev/video\d+", line)
         if len(device_name_match) > 0:
-            devices.append(Device(device_name_match[0], []))
+            devices.append(Device(name=device_name_match[0], device_files=[]))
         elif device_file_match:
-            devices[-1].device_files.append(device_file_match.group())
+            devices[-1].device_files.append(
+                DeviceFile(path=device_file_match.group(), formats=[])
+            )
+
+    for di in range(len(devices)):
+        for dfi in range(len(devices[di].device_files)):
+            devices[di].device_files[dfi].formats = v4l2_ctl_format_ext(
+                devices[di].device_files[dfi].path
+            )
+
     return devices
 
 
 if __name__ == "__main__":
-    pprint.pprint(v4l2_ctl_list_devices())
-    pprint.pprint(v4l2_ctl_format_ext("/dev/video4"))
+    devices = v4l2_ctl_list_devices()
+    for device in devices:
+        print(device.name)
+        for device_file in device.device_files:
+            print(f"  {device_file.path}")
+            for format in device_file.formats:
+                print(f"    {format.name}")
+                for quality in format.quality:
+                    print(f"      {quality.size}")
+                    print(f"      {quality.fps}")
+        print()
