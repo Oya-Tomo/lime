@@ -23,3 +23,72 @@ div.icon {
 h1 {
   color: white;
 }
+
+menu {
+  height: 50px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+li {
+  list-style-type: none;
+}
+
+#connect {
+  padding: 10px;
+  font-size: 16px;
+  background-color: #2aac0a;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+#connect:hover {
+  background-color: #6cd851;
+}
+
+#connect:active {
+  background-color: #1e7e1e;
+}
+
+#connect:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+}
+
+#disconnect {
+  padding: 10px;
+  font-size: 16px;
+  background-color: #cc0000;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+#disconnect:hover {
+  background-color: #ff0000;
+}
+
+#disconnect:active {
+  background-color: #aa0000;
+}
+
+#disconnect:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+}
+
+select {
+  padding: 10px;
+  font-size: 16px;
+}
+
+video {
+  width: 100%;
+  max-width: 1280px;
+}

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,6 +11,30 @@
       <div class="icon"></div>
       <h1>WebRTC Lime</h1>
     </header>
+    <menu>
+      <li>
+        <button id="connect">connect</button>
+      </li>
+      <li>
+        <select name="device" id="device"></select>
+      </li>
+      <li>
+        <select name="source" id="source"></select>
+      </li>
+      <li>
+        <select name="format" id="format"></select>
+      </li>
+      <li>
+        <select name="resolution" id="resolution"></select>
+      </li>
+      <li>
+        <select name="framerate" id="framerate"></select>
+      </li>
+      <li>
+        <button id="disconnect">disconnect</button>
+      </li>
+    </menu>
+    <video id="video" autoplay="true" playsinline="true"></video>
   </body>
   <script src="/static/index.js"></script>
 </html>
