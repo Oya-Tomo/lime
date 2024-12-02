@@ -1,15 +1,16 @@
-// states
-
 document.addEventListener("DOMContentLoaded", async function () {
   await initialize();
 });
 
 async function initialize() {
+  disabledConnectButton(true);
+  disabledDisconnectButton(true);
+
   const connectButton = document.getElementById("connect");
-  connectButton.disabled = true;
+  connectButton.onclick = connect;
 
   const disconnectButton = document.getElementById("disconnect");
-  disconnectButton.disabled = true;
+  disconnectButton.onclick = disconnect;
 
   var devices = [];
   await fetch("/devices")
@@ -20,6 +21,16 @@ async function initialize() {
     .finally(() => {});
 
   prepareDeviceSelect(devices);
+}
+
+function disabledConnectButton(disabled) {
+  const connectButton = document.getElementById("connect");
+  connectButton.disabled = disabled;
+}
+
+function disabledDisconnectButton(disabled) {
+  const disconnectButton = document.getElementById("disconnect");
+  disconnectButton.disabled = disabled;
 }
 
 function prepareDeviceSelect(devices) {
@@ -46,6 +57,7 @@ function prepareDeviceSelect(devices) {
     clearFormatSelect();
     clearResolutionSelect();
     clearFramerateSelect();
+    disabledConnectButton(true);
   };
 }
 
@@ -77,6 +89,7 @@ function prepareSourceSelect(device) {
     prepareFormatSelect(source);
     clearResolutionSelect();
     clearFramerateSelect();
+    disabledConnectButton(true);
   };
 }
 
@@ -107,6 +120,7 @@ function prepareFormatSelect(source) {
     const format = source.formats.find((f) => f.name === event.target.value);
     prepareResolutionSelect(format);
     clearFramerateSelect();
+    disabledConnectButton(true);
   };
 }
 
@@ -138,6 +152,7 @@ function prepareResolutionSelect(format) {
       (r) => r.size === event.target.value
     );
     prepareFramerateSelect(resolution);
+    disabledConnectButton(true);
   };
 }
 
@@ -163,4 +178,102 @@ function prepareFramerateSelect(resolution) {
     option.innerText = fps;
     select.appendChild(option);
   });
+
+  select.onchange = (event) => {
+    disabledConnectButton(false);
+  };
 }
+
+// connect
+
+var pc = null;
+
+function negotiate() {
+  pc.addTransceiver("video", { direction: "recvonly" });
+  pc.addTransceiver("audio", { direction: "recvonly" });
+
+  device = document.getElementById("source").value;
+  framerate = document.getElementById("framerate").value;
+  video_size = document.getElementById("resolution").value;
+
+  return pc
+    .createOffer()
+    .then((offer) => {
+      return pc.setLocalDescription(offer);
+    })
+    .then(() => {
+      // wait for ICE gathering to complete
+      return new Promise((resolve) => {
+        if (pc.iceGatheringState === "complete") {
+          resolve();
+        } else {
+          const checkState = () => {
+            if (pc.iceGatheringState === "complete") {
+              pc.removeEventListener("icegatheringstatechange", checkState);
+              resolve();
+            }
+          };
+          pc.addEventListener("icegatheringstatechange", checkState);
+        }
+      });
+    })
+    .then(() => {
+      var offer = pc.localDescription;
+      return fetch("/offer", {
+        body: JSON.stringify({
+          sdp: offer.sdp,
+          type: offer.type,
+          device: device,
+          framerate: framerate,
+          video_size: video_size,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+      });
+    })
+    .then((response) => {
+      return response.json();
+    })
+    .then((answer) => {
+      return pc.setRemoteDescription(answer);
+    })
+    .catch((e) => {
+      alert(e);
+    });
+}
+
+function connect() {
+  var config = {
+    sdpSemantics: "unified-plan",
+  };
+
+  pc = new RTCPeerConnection(config);
+
+  pc.addEventListener("track", (event) => {
+    if (event.track.kind === "video") {
+      document.getElementById("video").srcObject = event.streams[0];
+    }
+  });
+
+  disabledConnectButton(true);
+  negotiate();
+  disabledDisconnectButton(false);
+}
+
+function disconnect() {
+  pc.close();
+  pc = null;
+
+  document.getElementById("video").srcObject = null;
+
+  disabledConnectButton(false);
+  disabledDisconnectButton(true);
+}
+
+window.addEventListener("beforeunload", () => {
+  if (pc) {
+    pc.close();
+  }
+});

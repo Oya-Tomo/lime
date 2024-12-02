@@ -19,4 +19,5 @@ class Tracks:
                     "video_size": video_size,
                 },
             )
-        return self.relay.subscribe(player)
+            self.players[device] = player
+        return self.relay.subscribe(player.video)
