@@ -33,6 +33,23 @@ function disabledDisconnectButton(disabled) {
   disconnectButton.disabled = disabled;
 }
 
+function disabledParams(disabled) {
+  const device = document.getElementById("device");
+  device.disabled = disabled;
+
+  const source = document.getElementById("source");
+  source.disabled = disabled;
+
+  const format = document.getElementById("format");
+  format.disabled = disabled;
+
+  const resolution = document.getElementById("resolution");
+  resolution.disabled = disabled;
+
+  const framerate = document.getElementById("framerate");
+  framerate.disabled = disabled;
+}
+
 function prepareDeviceSelect(devices) {
   const select = document.getElementById("device");
   select.innerHTML = "";
@@ -257,6 +274,7 @@ function connect() {
     }
   });
 
+  disabledParams(true);
   disabledConnectButton(true);
   negotiate();
   disabledDisconnectButton(false);
@@ -270,6 +288,7 @@ function disconnect() {
 
   disabledConnectButton(false);
   disabledDisconnectButton(true);
+  disabledParams(false);
 }
 
 window.addEventListener("beforeunload", () => {
