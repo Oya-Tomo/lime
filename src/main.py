@@ -70,6 +70,15 @@ async def get_devices():
     return DevicesResponse(devices=devices)
 
 
+@server.get("/devices/reset")
+async def reset_devices():
+    for pc in pcs:
+        await pc.close()
+    pcs.clear()
+    tracks.reset()
+    return Response(content="OK", status_code=200)
+
+
 # WebRTC
 
 

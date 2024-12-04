@@ -11,10 +11,18 @@
       <div class="icon"></div>
       <h1>WebRTC Lime</h1>
     </header>
-    <menu>
+    <ul>
       <li>
         <button id="connect">connect</button>
       </li>
+      <li>
+        <button id="disconnect">disconnect</button>
+      </li>
+      <li>
+        <button id="reset">reset</button>
+      </li>
+    </ul>
+    <menu>
       <li>
         <select name="device" id="device"></select>
       </li>
@@ -29,9 +37,6 @@
       </li>
       <li>
         <select name="framerate" id="framerate"></select>
-      </li>
-      <li>
-        <button id="disconnect">disconnect</button>
       </li>
     </menu>
     <video id="video" autoplay="true" playsinline="true"></video>

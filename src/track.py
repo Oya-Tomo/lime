@@ -17,7 +17,15 @@ class Tracks:
                 options={
                     "framerate": str(framerate),
                     "video_size": video_size,
+                    # "input_format": "mjpeg",
+                    # "rtbufsize": "100",
                 },
             )
             self.players[device] = player
         return self.relay.subscribe(player.video)
+
+    def reset(self):
+        for player in self.players.values():
+            player.video.stop()
+        self.players.clear()
+        self.relay = MediaRelay()

@@ -24,6 +24,13 @@ h1 {
   color: white;
 }
 
+ul {
+  height: 50px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 menu {
   height: 50px;
   display: flex;
@@ -78,6 +85,30 @@ li {
 }
 
 #disconnect:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+}
+
+#reset {
+  padding: 10px;
+  font-size: 16px;
+  background-color: #2aac0a;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+#reset:hover {
+  background-color: #6cd851;
+}
+
+#reset:active {
+  background-color: #1e7e1e;
+}
+
+#reset:disabled {
   background-color: #cccccc;
   color: #666666;
   cursor: not-allowed;

@@ -5,12 +5,16 @@ document.addEventListener("DOMContentLoaded", async function () {
 async function initialize() {
   disabledConnectButton(true);
   disabledDisconnectButton(true);
+  disabledResetButton(false);
 
   const connectButton = document.getElementById("connect");
   connectButton.onclick = connect;
 
   const disconnectButton = document.getElementById("disconnect");
   disconnectButton.onclick = disconnect;
+
+  const resetButton = document.getElementById("reset");
+  resetButton.onclick = reset;
 
   var devices = [];
   await fetch("/devices")
@@ -31,6 +35,11 @@ function disabledConnectButton(disabled) {
 function disabledDisconnectButton(disabled) {
   const disconnectButton = document.getElementById("disconnect");
   disconnectButton.disabled = disabled;
+}
+
+function disabledResetButton(disabled) {
+  const resetButton = document.getElementById("reset");
+  resetButton.disabled = disabled;
 }
 
 function disabledParams(disabled) {
@@ -274,8 +283,22 @@ function connect() {
     }
   });
 
+  pc.addEventListener("connectionstatechange", (event) => {
+    if (pc.connectionState === "failed") {
+      disconnect();
+      alert("Connection failed");
+    } else if (pc.connectionState === "disconnected") {
+      disconnect();
+      alert("Connection disconnected");
+    } else if (pc.connectionState === "closed") {
+      disconnect();
+      alert("Connection closed");
+    }
+  });
+
   disabledParams(true);
   disabledConnectButton(true);
+  disabledResetButton(true);
   negotiate();
   disabledDisconnectButton(false);
 }
@@ -288,7 +311,16 @@ function disconnect() {
 
   disabledConnectButton(false);
   disabledDisconnectButton(true);
+  disabledResetButton(false);
   disabledParams(false);
+}
+
+function reset() {
+  return fetch("/devices/reset", {
+    method: "GET",
+  }).then((response) => {
+    return response.json();
+  });
 }
 
 window.addEventListener("beforeunload", () => {
