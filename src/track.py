@@ -24,6 +24,12 @@ class Tracks:
             self.players[device] = player
         return self.relay.subscribe(player.video)
 
+    def delete_video_track(self, device: str):
+        player = self.players.get(device)
+        if player != None:
+            player.video.stop()
+            del self.players[device]
+
     def reset(self):
         for player in self.players.values():
             player.video.stop()

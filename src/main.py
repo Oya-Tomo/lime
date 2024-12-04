@@ -70,13 +70,29 @@ async def get_devices():
     return DevicesResponse(devices=devices)
 
 
-@server.get("/devices/reset")
-async def reset_devices():
-    for pc in pcs:
-        await pc.close()
-    pcs.clear()
-    tracks.reset()
-    return Response(content="OK", status_code=200)
+class DevicesCheckRequest(BaseModel):
+    file: str
+
+
+class DevicesCheckResponse(BaseModel):
+    used: bool
+
+
+@server.post("/devices/check", response_model=DevicesCheckResponse)
+async def check_device(request: DevicesCheckRequest):
+    player = tracks.players.get(request.file)
+    used = player != None
+    return DevicesCheckResponse(used=used)
+
+
+class DevicesDeleteRequest(BaseModel):
+    file: str
+
+
+@server.delete("/devices/delete", response_model=DevicesDeleteRequest)
+async def delete_device(request: DevicesDeleteRequest):
+    tracks.delete_video_track(request.file)
+    return request
 
 
 # WebRTC
@@ -108,6 +124,8 @@ async def offer(request: OfferRequest):
         if pc.connectionState == "failed":
             await pc.close()
             pcs.discard(pc)
+        if pc.connectionState in ["closed", "failed"]:
+            tracks.delete_video_track(request.device)
 
     video = tracks.create_video_track(
         request.device, request.framerate, request.video_size

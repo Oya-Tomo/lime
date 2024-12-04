@@ -5,16 +5,12 @@ document.addEventListener("DOMContentLoaded", async function () {
 async function initialize() {
   disabledConnectButton(true);
   disabledDisconnectButton(true);
-  disabledResetButton(false);
 
   const connectButton = document.getElementById("connect");
   connectButton.onclick = connect;
 
   const disconnectButton = document.getElementById("disconnect");
   disconnectButton.onclick = disconnect;
-
-  const resetButton = document.getElementById("reset");
-  resetButton.onclick = reset;
 
   var devices = [];
   await fetch("/devices")
@@ -35,11 +31,6 @@ function disabledConnectButton(disabled) {
 function disabledDisconnectButton(disabled) {
   const disconnectButton = document.getElementById("disconnect");
   disconnectButton.disabled = disabled;
-}
-
-function disabledResetButton(disabled) {
-  const resetButton = document.getElementById("reset");
-  resetButton.disabled = disabled;
 }
 
 function disabledParams(disabled) {
@@ -214,6 +205,25 @@ function prepareFramerateSelect(resolution) {
 
 var pc = null;
 
+async function checkDevice() {
+  device = document.getElementById("source").value;
+  return fetch("/devices/check", {
+    body: JSON.stringify({
+      file: device,
+    }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    method: "POST",
+  })
+    .then((response) => {
+      return response.json();
+    })
+    .then((json) => {
+      return json.used;
+    });
+}
+
 function negotiate() {
   pc.addTransceiver("video", { direction: "recvonly" });
   pc.addTransceiver("audio", { direction: "recvonly" });
@@ -270,7 +280,13 @@ function negotiate() {
     });
 }
 
-function connect() {
+async function connect() {
+  used = await checkDevice();
+  if (used) {
+    alert("Device is already in use");
+    return;
+  }
+
   var config = {
     sdpSemantics: "unified-plan",
   };
@@ -298,7 +314,6 @@ function connect() {
 
   disabledParams(true);
   disabledConnectButton(true);
-  disabledResetButton(true);
   negotiate();
   disabledDisconnectButton(false);
 }
@@ -311,16 +326,7 @@ function disconnect() {
 
   disabledConnectButton(false);
   disabledDisconnectButton(true);
-  disabledResetButton(false);
   disabledParams(false);
-}
-
-function reset() {
-  return fetch("/devices/reset", {
-    method: "GET",
-  }).then((response) => {
-    return response.json();
-  });
 }
 
 window.addEventListener("beforeunload", () => {
