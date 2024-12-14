@@ -143,4 +143,4 @@ async def offer(request: OfferRequest):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:server", host="localhost", port=8000, reload=True)
+    uvicorn.run("main:server", host="0.0.0.0", port=8000, reload=True)
